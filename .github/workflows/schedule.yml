@@ -1,0 +1,28 @@
+yamlname: Run Daily AI Research Agent
+
+on:
+  schedule:
+    # Triggers every single day at 13:00 UTC (8:00 AM EST / 5:00 AM PST)
+    - cron: '0 13 * * *'
+  workflow_dispatch: # This line allows you to also trigger it manually whenever you want
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Network Tools
+        run: pip install requests
+
+      - name: Execute Research Script
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python agent.py
