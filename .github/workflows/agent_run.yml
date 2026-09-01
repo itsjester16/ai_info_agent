@@ -1,4 +1,4 @@
-name: Daily AI Research 
+name: Daily AI Research
 
 on:
   schedule:
@@ -25,7 +25,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          cat << 'EOF' > fresh_run.py
+          cat << 'EOF' > completely_fresh_run.py
           import os
           import requests
 
@@ -34,6 +34,7 @@ jobs:
           RESEARCH_TOPIC = "The latest advancements in AI agents, LLMs, and open-source AI models over the past 24 hours."
 
           def search_and_summarize():
+              # Completely clean, unalterable REST URL line string mapping
               url = f"https://googleapis.com{GEMINI_KEY}"
               headers = {"Content-Type": "application/json"}
               
@@ -53,7 +54,7 @@ jobs:
               
               try:
                   result = response.json()
-                  return result['candidates'][0]['content']['parts'][0]['text']
+                  return result['candidates']['content']['parts']['text']
               except Exception as e:
                   return f"Failed to parse AI response: {str(e)}"
 
@@ -64,11 +65,11 @@ jobs:
                   requests.post(DISCORD_URL, json=payload)
 
           if __name__ == "__main__":
-              print("Starting clean run...")
+              print("Starting completely fresh run...")
               report = search_and_summarize()
               print("Sending results to Discord...")
               send_to_discord(report)
               print("Done!")
           EOF
 
-          python fresh_run.py
+          python completely_fresh_run.py
