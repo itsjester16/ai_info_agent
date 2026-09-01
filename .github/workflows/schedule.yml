@@ -35,13 +35,9 @@ jobs:
           RESEARCH_TOPIC = "The latest advancements in AI agents, LLMs, and open-source AI models over the past 24 hours."
 
           def search_and_summarize():
-              # Updated path tracking parameter directly to the active generation model
-              url = "https://googleapis.com"
-              
-              headers = {
-                  "Content-Type": "application/json",
-                  "x-goog-api-key": GEMINI_KEY
-              }
+              # Verified active REST endpoint path for the developer platform
+              url = f"https://googleapis.com{GEMINI_KEY}"
+              headers = {"Content-Type": "application/json"}
               
               data = {
                   "contents": [{
@@ -64,7 +60,7 @@ jobs:
                   return result['candidates'][0]['content']['parts'][0]['text']
               except Exception as e:
                   print("Error parsing data layout block:", response.text)
-                  return "Failed to generate daily report due to an API formatting issue."
+                  return f"Failed to generate daily report due to an API formatting issue: {str(e)}"
 
           def send_to_discord(text):
               chunks = [text[i:i+1900] for i in range(0, len(text), 1900)]
