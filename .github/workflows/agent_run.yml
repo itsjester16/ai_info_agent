@@ -20,12 +20,16 @@ jobs:
       - name: Install Network Tools
         run: pip install requests
 
-      - name: Create and Run Fresh Script
+      - name: Force Overwrite and Run Clean Script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          cat << 'EOF' > completely_fresh_run.py
+          # Create a clean folder path matching exactly where your repo is nesting files
+          mkdir -p ai_info_agent/ai_info_agent
+          
+          # Write the correct code directly into that nested path to overwrite the typo version
+          cat << 'EOF' > ai_info_agent/ai_info_agent/completely_fresh_run.py
           import os
           import requests
 
@@ -34,7 +38,6 @@ jobs:
           RESEARCH_TOPIC = "The latest advancements in AI agents, LLMs, and open-source AI models over the past 24 hours."
 
           def search_and_summarize():
-              # Completely clean, unalterable REST URL line string mapping
               url = f"https://googleapis.com{GEMINI_KEY}"
               headers = {"Content-Type": "application/json"}
               
@@ -72,4 +75,6 @@ jobs:
               print("Done!")
           EOF
 
+          # Change directory to match the execution path in your error log
+          cd ai_info_agent/ai_info_agent
           python completely_fresh_run.py
