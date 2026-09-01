@@ -9,8 +9,10 @@ jobs:
   run-agent:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repo code
+      - name: Force Clean Workspace Checkout
         uses: actions/checkout@v4
+        with:
+          path: '.' # Forces everything directly into the core root folder
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -20,16 +22,13 @@ jobs:
       - name: Install Network Tools
         run: pip install requests
 
-      - name: Force Overwrite and Run Clean Script
+      - name: Generate and Run Clean Isolated Script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          # Create a clean folder path matching exactly where your repo is nesting files
-          mkdir -p ai_info_agent/ai_info_agent
-          
-          # Write the correct code directly into that nested path to overwrite the typo version
-          cat << 'EOF' > ai_info_agent/ai_info_agent/completely_fresh_run.py
+          # Write the correct python code into a completely separate file in the root workspace
+          cat << 'EOF' > absolute_final_run.py
           import os
           import requests
 
@@ -68,13 +67,12 @@ jobs:
                   requests.post(DISCORD_URL, json=payload)
 
           if __name__ == "__main__":
-              print("Starting completely fresh run...")
+              print("Running independent script from root path layout...")
               report = search_and_summarize()
               print("Sending results to Discord...")
               send_to_discord(report)
               print("Done!")
           EOF
 
-          # Change directory to match the execution path in your error log
-          cd ai_info_agent/ai_info_agent
-          python completely_fresh_run.py
+          # Run ONLY our new independent root file 
+          python absolute_final_run.py
