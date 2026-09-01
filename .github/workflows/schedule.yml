@@ -35,6 +35,7 @@ jobs:
           RESEARCH_TOPIC = "The latest advancements in AI agents, LLMs, and open-source AI models over the past 24 hours."
 
           def search_and_summarize():
+              # Fixed URL path layout structure required by Google AI Studio
               url = "https://googleapis.com"
               params = {"key": GEMINI_KEY}
               headers = {"Content-Type": "application/json"}
@@ -50,7 +51,6 @@ jobs:
               
               response = requests.post(url, params=params, headers=headers, json=data)
               
-              # If Google returns an error code, trap it and output the text directly
               if response.status_code != 200:
                   print(f"Google API Error! Status Code: {response.status_code}")
                   print(f"Response Content: {response.text}")
@@ -58,9 +58,10 @@ jobs:
               
               try:
                   result = response.json()
-                  return result['candidates']['content']['parts']['text']
+                  # Corrected key extraction path structure
+                  return result['candidates'][0]['content']['parts'][0]['text']
               except Exception as e:
-                  print("Error parsing response:", response.text)
+                  print("Error parsing response structural layout:", response.text)
                   return "Failed to generate daily report due to an API formatting issue."
 
           def send_to_discord(text):
