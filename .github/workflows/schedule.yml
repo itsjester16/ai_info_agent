@@ -1,4 +1,6 @@
-yamlname: Run Daily AI Research Agent
+yaml
+
+name: Run Daily AI Research Agent
 
 on:
   schedule:
