@@ -7,12 +7,10 @@ GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
 DISCORD_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 
 # Define what you want your agent to research today
-# Feel free to edit this prompt directly on GitHub later!
 RESEARCH_TOPIC = "The latest advancements in AI agents, LLMs, and open-source AI models over the past 24 hours."
 
 def search_and_summarize():
-        url = f"https://googleapis.com{GEMINI_KEY}"
-
+    url = f"https://googleapis.com{GEMINI_KEY}"
     
     headers = {"Content-Type": "application/json"}
     
@@ -29,7 +27,7 @@ def search_and_summarize():
     response = requests.post(url, headers=headers, json=data)
     result = response.json()
     
-    # Extract the text answer from Gemini's complex response JSON structure
+    # Extract the text answer from Gemini's response structure
     try:
         summary_text = result['candidates'][0]['content']['parts'][0]['text']
         return summary_text
@@ -39,7 +37,6 @@ def search_and_summarize():
 
 def send_to_discord(text):
     # Discord limits single webhook messages to 2000 characters.
-    # This loop safely cuts long reports into smaller blocks.
     chunks = [text[i:i+1900] for i in range(0, len(text), 1900)]
     
     for chunk in chunks:
