@@ -1,4 +1,4 @@
-name: Run Daily AI Research Agent
+name: Daily AI Research 
 
 on:
   schedule:
