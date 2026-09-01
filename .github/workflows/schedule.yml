@@ -2,7 +2,6 @@ name: Run Daily AI Research Agent
 
 on:
   schedule:
-    # Triggers every single day at 13:00 UTC (8:00 AM EST / 5:00 AM PST)
     - cron: '0 13 * * *'
   workflow_dispatch:
 
@@ -21,8 +20,58 @@ jobs:
       - name: Install Network Tools
         run: pip install requests
 
-      - name: Execute Research Script
+      - name: Locate and Execute Research Script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: python ./agent.py
+        run: |
+          # Automatically find the clean code block we wrote, wherever it is hidden
+          TARGET_FILE=$(find . -name "agent.py" | head -n 1)
+          echo "Found script at: $TARGET_FILE"
+          
+          # Overwrite it with a guaranteed clean version to bypass all typos
+          cat << 'EOF' > "$TARGET_FILE"
+          import os
+          import requests
+          import json
+
+          GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
+          DISCORD_URL = os.environ.get("DISCORD_WEBHOOK_URL")
+          RESEARCH_TOPIC = "The latest advancements in AI agents, LLMs, and open-source AI models over the past 24 hours."
+
+          def search_and_summarize():
+              url = f"https://googleapis.com{GEMINI_KEY}"
+              headers = {"Content-Type": "application/json"}
+              data = {
+                  "contents": [{
+                      "parts": [{
+                          "text": f"Search the live web and write a clean daily briefing about: {RESEARCH_TOPIC}. Use clean markdown bullet points and bold key terms. Keep it comprehensive but readable."
+                      }]
+                  }],
+                  "tools": [{"googleSearch": {}}]
+              }
+              response = requests.post(url, headers=headers, json=data)
+              result = response.json()
+              try:
+                  return result['candidates'][0]['content']['parts'][0]['text']
+              except Exception as e:
+                  print("Error parsing response:", result)
+                  return "Failed to generate daily report due to an API formatting issue."
+
+          def send_to_discord(text):
+              chunks = [text[i:i+1900] for i in range(0, len(text), 1900)]
+              for chunk in chunks:
+                  payload = {"content": chunk}
+                  requests.post(DISCORD_URL, json=payload)
+
+          if __name__ == "__main__":
+              print("Agent starting research loop...")
+              report = search_and_summarize()
+              print("Pushing to Discord...")
+              send_to_discord(report)
+              print("Done!")
+          EOF
+
+          # Run the freshly overwritten file cleanly
+          python "$TARGET_FILE"
+
