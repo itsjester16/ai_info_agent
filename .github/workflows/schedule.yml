@@ -35,7 +35,7 @@ jobs:
           RESEARCH_TOPIC = "The latest advancements in AI agents, LLMs, and open-source AI models over the past 24 hours."
 
           def search_and_summarize():
-              # Fallback universal API endpoint path layout pattern
+              # Updated path tracking parameter directly to the active generation model
               url = "https://googleapis.com"
               
               headers = {
@@ -54,12 +54,6 @@ jobs:
               
               response = requests.post(url, headers=headers, json=data)
               
-              # Fallback path routing option check 
-              if response.status_code == 404:
-                  print("V1 path returned 404, attempting V1beta fallback alternative...")
-                  url_beta = "https://googleapis.com"
-                  response = requests.post(url_beta, headers=headers, json=data)
-
               if response.status_code != 200:
                   print(f"Google API Error! Status Code: {response.status_code}")
                   print(f"Response Content: {response.text}")
