@@ -35,9 +35,8 @@ jobs:
           RESEARCH_TOPIC = "The latest advancements in AI agents, LLMs, and open-source AI models over the past 24 hours."
 
           def search_and_summarize():
-              # Fixed URL path layout structure required by Google AI Studio
-              url = "https://googleapis.com"
-              params = {"key": GEMINI_KEY}
+              # Embedded the structural path parameter definition directly within the core target string
+              url = f"https://googleapis.com{GEMINI_KEY}"
               headers = {"Content-Type": "application/json"}
               
               data = {
@@ -49,7 +48,7 @@ jobs:
                   "tools": [{"googleSearch": {}}]
               }
               
-              response = requests.post(url, params=params, headers=headers, json=data)
+              response = requests.post(url, headers=headers, json=data)
               
               if response.status_code != 200:
                   print(f"Google API Error! Status Code: {response.status_code}")
@@ -58,7 +57,7 @@ jobs:
               
               try:
                   result = response.json()
-                  # Corrected key extraction path structure
+                  # Adjusted reference indexing to extract text safely from the list response
                   return result['candidates'][0]['content']['parts'][0]['text']
               except Exception as e:
                   print("Error parsing response structural layout:", response.text)
