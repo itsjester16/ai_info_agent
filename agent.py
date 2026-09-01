@@ -29,7 +29,7 @@ def search_and_summarize():
     
     # Extract the text answer from Gemini's response structure
     try:
-        summary_text = result['candidates'][0]['content']['parts'][0]['text']
+        summary_text = result['candidates']['content']['parts']['text']
         return summary_text
     except Exception as e:
         print("Error parsing Gemini response:", result)
