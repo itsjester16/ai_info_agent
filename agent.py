@@ -11,7 +11,8 @@ DISCORD_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 RESEARCH_TOPIC = "The latest advancements in AI agents, LLMs, and open-source AI models over the past 24 hours."
 
 def search_and_summarize():
-    url = f"https://googleapis.com{GEMINI_KEY}"
+        url = f"https://googleapis.com{GEMINI_KEY}"
+
     
     headers = {"Content-Type": "application/json"}
     
