@@ -1,0 +1,74 @@
+name: Run Daily AI Research Agent
+
+on:
+  schedule:
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Network Tools
+        run: pip install requests
+
+      - name: Create and Run Fresh Script
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          cat << 'EOF' > fresh_run.py
+          import os
+          import requests
+
+          GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
+          DISCORD_URL = os.environ.get("DISCORD_WEBHOOK_URL")
+          RESEARCH_TOPIC = "The latest advancements in AI agents, LLMs, and open-source AI models over the past 24 hours."
+
+          def search_and_summarize():
+              url = f"https://googleapis.com{GEMINI_KEY}"
+              headers = {"Content-Type": "application/json"}
+              
+              data = {
+                  "contents": [{
+                      "parts": [{
+                          "text": f"Search the live web and write a clean daily briefing about: {RESEARCH_TOPIC}. Use clean markdown bullet points and bold key terms. Keep it comprehensive but readable."
+                      }]
+                  }],
+                  "tools": [{"googleSearch": {}}]
+              }
+              
+              response = requests.post(url, headers=headers, json=data)
+              
+              if response.status_code != 200:
+                  return f"API Connection Error: Google returned status code {response.status_code}. Details: {response.text[:200]}"
+              
+              try:
+                  result = response.json()
+                  return result['candidates'][0]['content']['parts'][0]['text']
+              except Exception as e:
+                  return f"Failed to parse AI response: {str(e)}"
+
+          def send_to_discord(text):
+              chunks = [text[i:i+1900] for i in range(0, len(text), 1900)]
+              for chunk in chunks:
+                  payload = {"content": chunk}
+                  requests.post(DISCORD_URL, json=payload)
+
+          if __name__ == "__main__":
+              print("Starting clean run...")
+              report = search_and_summarize()
+              print("Sending results to Discord...")
+              send_to_discord(report)
+              print("Done!")
+          EOF
+
+          python fresh_run.py
